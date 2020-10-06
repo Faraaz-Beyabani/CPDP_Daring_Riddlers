@@ -2,24 +2,24 @@
 
 -- Allegations by Beat
 SELECT
-    beat_id as "Beat ID",
+    b.name as "Beat ID",
     COUNT(*) as "Allegations"
-FROM data_allegation
+FROM data_allegation a JOIN data_area b ON a.beat_id = b.id
 WHERE
     beat_id is not NULL AND
     EXTRACT(year FROM incident_date) = 2000
-GROUP BY beat_id
-ORDER BY COUNT(*) DESC
+GROUP BY b.name
+ORDER BY COUNT(*) DESC;
 
 SELECT
-    beat_id as "Beat ID",
+    b.name as "Beat ID",
     COUNT(*) as "Allegations"
-FROM data_allegation
+FROM data_allegation a JOIN data_area b ON a.beat_id = b.id
 WHERE
     beat_id is not NULL AND
-    EXTRACT(year FROM incident_date) = 2019
-GROUP BY beat_id
-ORDER BY COUNT(*) DESC
+    EXTRACT(year FROM incident_date) = 2015
+GROUP BY b.name
+ORDER BY COUNT(*) DESC;
 
 
 
