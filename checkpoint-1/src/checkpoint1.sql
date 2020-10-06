@@ -1,6 +1,14 @@
+
+----------------------------------
+-- QUESTION 1                   --
+----------------------------------
+
 -- What is the average crime rate, number of assigned officers, complaints, and settlements all of the Chicago area?
 
 -- Allegations by Beat
+
+-- 2000
+
 SELECT
     b.name as "Beat ID",
     COUNT(*) as "Allegations"
@@ -10,6 +18,8 @@ WHERE
     EXTRACT(year FROM incident_date) = 2000
 GROUP BY b.name
 ORDER BY COUNT(*) DESC;
+
+-- 2015
 
 SELECT
     b.name as "Beat ID",
@@ -25,8 +35,12 @@ ORDER BY COUNT(*) DESC;
 
 -- Total Officers
 
+-- 2000
+
 SELECT count(id) FROM data_officer
 WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2000;
+
+-- 2019
 
 SELECT count(id) FROM data_officer
 WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2019;
@@ -34,14 +48,18 @@ WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2019;
 
 
 -- Total Allegations
+
+-- 2005
+
 SELECT COUNT(*)
 FROM data_allegation
 WHERE EXTRACT(year FROM incident_date) = 2005
 
+-- 2015
+
 SELECT COUNT(*)
 FROM data_allegation
 WHERE EXTRACT(year FROM incident_date) = 2015
-
 
 
 -- Total Settlements
@@ -66,8 +84,9 @@ SELECT avg(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2019;
 
-
-
+----------------------------------
+-- QUESTION 2                   --
+----------------------------------
 
 -- *** What is the racial and gender breakdown of the policing force (aggregating across all neighborhoods)? ***
 
@@ -137,8 +156,10 @@ WHERE doh.officer_id = dof.id AND doh.unit_id = dpu.id AND dpu.description IS NO
 GROUP BY dpu.description;
 
 
+----------------------------------
+-- QUESTION 3                   --
+----------------------------------
 
--- *** Which neighborhoods have predominantly White, Black, Asian, or Hispanic police forces? ***
 -- *** What is the race composition of every beat active in 2019?
 
 SELECT res.beat, res.race, count(distinct res.officer_id) FROM
@@ -146,6 +167,10 @@ SELECT res.beat, res.race, count(distinct res.officer_id) FROM
 WHERE EXTRACT(year FROM shift_start) = 2019 AND beat SIMILAR TO '[0-9]%') as res
 WHERE res.officer_id is not null AND res.beat is not null
 GROUP BY res.beat, res.race
+
+----------------------------------
+-- QUESTION 4                   --
+----------------------------------
 
 -- *** What is the city’s racial breakdown for its population? ***
 
@@ -156,7 +181,6 @@ GROUP BY race;
 SELECT race, round(cast(avg(count) as numeric), 2)
 FROM data_racepopulation drp
 GROUP BY race;
-
 
 
 -- *** Which areas are predominantly White, Black, Asian, Hispanic (compared to the city average)? ***
