@@ -3,7 +3,7 @@
 -- QUESTION 1                   --
 ----------------------------------
 
--- What is the average crime rate, number of assigned officers, complaints, and settlements all of the Chicago area?
+-- What is the number of assigned officers, complaints, and settlements across all of the Chicago area?
 
 -- Allegations by Beat
 
@@ -62,27 +62,34 @@ FROM data_allegation
 WHERE EXTRACT(year FROM incident_date) = 2015
 
 
--- Total Settlements
 
--- 2011 (earliest available year for settlement data)
+-- *** Total Settlements ***
+
+-- 2011 total payments
 
 SELECT sum(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2011;
 
+-- 2011 average payment per settlement
+
 SELECT avg(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2011;
 
--- 2019
+-- 2019 total payments
 
 SELECT sum(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2019;
 
+-- 2019 average payment per settlement
+
 SELECT avg(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2019;
+
+
 
 ----------------------------------
 -- QUESTION 2                   --
@@ -133,6 +140,7 @@ WHERE doh.officer_id = dof.id AND doh.unit_id = dpu.id AND dpu.description IS NO
 GROUP BY dpu.description;
 
 
+                                                
 
 -- 2019 total gender distribution per unit
 
@@ -155,12 +163,14 @@ FROM (SELECT * FROM data_officer WHERE EXTRACT(year FROM appointed_date) <= 2019
 WHERE doh.officer_id = dof.id AND doh.unit_id = dpu.id AND dpu.description IS NOT NULL AND dpu.description != 'Unknown'
 GROUP BY dpu.description;
 
+                                                
 
 ----------------------------------
 -- QUESTION 3                   --
 ----------------------------------
 
 -- *** What is the race composition of every beat active in 2019?
+-- Takes some time to resolve!
 
 SELECT res.beat, res.race, count(distinct res.officer_id) FROM
 (SELECT * FROM data_assignment_attendance
@@ -174,13 +184,18 @@ GROUP BY res.beat, res.race
 
 -- *** What is the city’s racial breakdown for its population? ***
 
+-- Total counts for each race
+                                                
 SELECT race, sum(count)
 FROM data_racepopulation drp
 GROUP BY race;
 
+-- Average counts for each race per area
+                                                
 SELECT race, round(cast(avg(count) as numeric), 2)
 FROM data_racepopulation drp
 GROUP BY race;
+
 
 
 -- *** Which areas are predominantly White, Black, Asian, Hispanic (compared to the city average)? ***
