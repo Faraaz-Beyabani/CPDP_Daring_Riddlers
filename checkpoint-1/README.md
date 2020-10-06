@@ -14,7 +14,6 @@
 ## Queries
 
 ### 1. What is the number of assigned officers, complaints, and settlements across all of the Chicago area?
-<br><br>
 ```
 -- *** Allegations by Beat ***
 
@@ -41,8 +40,9 @@ WHERE
     EXTRACT(year FROM incident_date) = 2015
 GROUP BY b.name
 ORDER BY COUNT(*) DESC;
+```
 
-
+```
 -- *** Total Officers ***
 
 -- 2000
@@ -54,9 +54,9 @@ WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2000;
 
 SELECT count(id) FROM data_officer
 WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2019;
+```
 
-
-
+```
 -- *** Total Allegations ***
 
 -- 2005
@@ -70,26 +70,30 @@ WHERE EXTRACT(year FROM incident_date) = 2005
 SELECT COUNT(*)
 FROM data_allegation
 WHERE EXTRACT(year FROM incident_date) = 2015
+```
 
-
-
+```
 -- *** Total Settlements ***
 
--- 2011 (earliest available year for settlement data)
+-- 2011 total payments
 
 SELECT sum(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2011;
+
+-- 2011 average payment per settlement
 
 SELECT avg(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2011;
 
--- 2019
+-- 2019 total payments
 
 SELECT sum(settlement)
 FROM lawsuit_payment
 WHERE EXTRACT(year from paid_date) = 2019;
+
+-- 2019 average payment per settlement
 
 SELECT avg(settlement)
 FROM lawsuit_payment
@@ -97,8 +101,7 @@ WHERE EXTRACT(year from paid_date) = 2019;
 
 ```
 
-### 2. What is the racial and gender breakdown of the policing force (aggregating across all of Chicago)? Which units have the highest male-to-female ratio of police officers?
-<br><br>
+### 2. What is the racial and gender breakdown of the policing force (aggregating across all of Chicago)? 
 ```
 -- *** 2000 race and gender across the entire CPD ***
 
@@ -116,9 +119,10 @@ FROM data_officer
 WHERE EXTRACT(year FROM appointed_date) <= 2019
 AND EXTRACT(year FROM resignation_date) >= 2019 OR resignation_date is null
 GROUP BY race, gender;
+```
 
-
-
+### 2.a. Which units have the highest male-to-female ratio of police officers?
+```
 -- *** 2000 total gender distribution per unit ***
 
 SELECT dpu.description, dof.gender, count(dof.gender)
@@ -139,9 +143,9 @@ FROM (SELECT * FROM data_officer WHERE EXTRACT(year FROM appointed_date) <= 2000
      data_officerhistory doh, data_policeunit dpu
 WHERE doh.officer_id = dof.id AND doh.unit_id = dpu.id AND dpu.description IS NOT NULL AND dpu.description != 'Unknown'
 GROUP BY dpu.description;
+```
 
-
-
+```
 -- *** 2019 total gender distribution per unit ***
 
 SELECT dpu.description, dof.gender, count(dof.gender)
@@ -166,10 +170,7 @@ GROUP BY dpu.description;
 
 
 ### 3. What does the distribution of race look like for every active beat (at least one assignment in a given year)?
-<br><br>
 ```
--- *** What is the race composition of every beat active in 2019? ***
-
 SELECT res.beat, res.race, count(distinct res.officer_id) FROM
 (SELECT * FROM data_assignment_attendance
 WHERE EXTRACT(year FROM shift_start) = 2019 AND beat SIMILAR TO '[0-9]%') as res
@@ -178,22 +179,21 @@ GROUP BY res.beat, res.race;
 ```
 
 
-### 4. What is the city’s racial breakdown for its population? Which neighborhoods are predominantly White, Black, Asian, Hispanic (compared to the city average)?
-<br><br>
+### 4. What is the city’s racial breakdown for its population?
 ```
--- *** What is the city’s racial breakdown for its population? ***
-
+-- Total counts for each race
 SELECT race, sum(count)
 FROM data_racepopulation drp
 GROUP BY race;
 
+-- Average counts for each race per area
 SELECT race, round(cast(avg(count) as numeric), 2)
 FROM data_racepopulation drp
 GROUP BY race;
+```
 
-
--- *** Which areas are predominantly White, Black, Asian, Hispanic (compared to the city average)? ***
-
+### 4.a. Which neighborhoods are predominantly White, Black, Asian, Hispanic (compared to the city average)?
+```
 SELECT drp.race, drp.area_id, da.name, drp.count, avg_race.average_count
 FROM (SELECT race, round(cast(avg(count) as numeric), 2) as average_count FROM data_racepopulation drp GROUP BY race) as avg_race,
      data_racepopulation drp,
