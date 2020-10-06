@@ -13,10 +13,12 @@
 
 ## Queries
 
-### What is the number of assigned officers, complaints, and settlements across all of the Chicago area?
+### 1. What is the number of assigned officers, complaints, and settlements across all of the Chicago area?
 <br><br>
 ```
 -- *** Allegations by Beat ***
+
+-- 2000
 
 SELECT
     b.name as "Beat ID",
@@ -27,6 +29,8 @@ WHERE
     EXTRACT(year FROM incident_date) = 2000
 GROUP BY b.name
 ORDER BY COUNT(*) DESC;
+
+-- 2015
 
 SELECT
     b.name as "Beat ID",
@@ -41,8 +45,12 @@ ORDER BY COUNT(*) DESC;
 
 -- *** Total Officers ***
 
+-- 2000
+
 SELECT count(id) FROM data_officer
 WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2000;
+
+-- 2019
 
 SELECT count(id) FROM data_officer
 WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2019;
@@ -50,9 +58,14 @@ WHERE resignation_date is null OR EXTRACT(year from resignation_date) >= 2019;
 
 
 -- *** Total Allegations ***
+
+-- 2005
+
 SELECT COUNT(*)
 FROM data_allegation
 WHERE EXTRACT(year FROM incident_date) = 2005
+
+-- 2015
 
 SELECT COUNT(*)
 FROM data_allegation
@@ -84,7 +97,7 @@ WHERE EXTRACT(year from paid_date) = 2019;
 
 ```
 
-### What is the racial and gender breakdown of the policing force (aggregating across all of Chicago)? Which units have the highest male-to-female ratio of police officers?
+### 2. What is the racial and gender breakdown of the policing force (aggregating across all of Chicago)? Which units have the highest male-to-female ratio of police officers?
 <br><br>
 ```
 -- *** 2000 race and gender across the entire CPD ***
@@ -152,7 +165,7 @@ GROUP BY dpu.description;
 ```
 
 
-### What does the distribution of race look like for every active beat (at least one assignment in a given year)?
+### 3. What does the distribution of race look like for every active beat (at least one assignment in a given year)?
 <br><br>
 ```
 -- *** What is the race composition of every beat active in 2019? ***
@@ -165,7 +178,7 @@ GROUP BY res.beat, res.race;
 ```
 
 
-### What is the city’s racial breakdown for its population? Which neighborhoods are predominantly White, Black, Asian, Hispanic (compared to the city average)?
+### 4. What is the city’s racial breakdown for its population? Which neighborhoods are predominantly White, Black, Asian, Hispanic (compared to the city average)?
 <br><br>
 ```
 -- *** What is the city’s racial breakdown for its population? ***
