@@ -99,11 +99,23 @@ WHERE EXTRACT(year from paid_date) = 2019;
 
 -- 2000 race and gender across the entire CPD
 
-SELECT race, count(race), gender, count(gender)
-FROM data_officer
-WHERE EXTRACT(year FROM appointed_date) <= 2000
-AND EXTRACT(year FROM resignation_date) >= 2000 OR resignation_date is null
-GROUP BY race, gender
+CREATE TEMP TABLE beat_district_map AS (
+SELECT beats.name beat_name, districts.name district_name
+FROM data_area districts JOIN data_area beats ON st_intersects(districts.polygon, beats.polygon)
+WHERE districts.area_type = 'police-district' AND beats.area_type = 'beat');
+
+CREATE TEMP TABLE race_per_beat AS (
+SELECT res.beat, res.race, count(distinct res.officer_id) as officer_count FROM
+(SELECT * FROM data_assignment_attendance
+WHERE EXTRACT(year FROM shift_start) = 2019 AND beat SIMILAR TO '[0-9]%') as res
+WHERE res.officer_id is not null AND res.beat is not null
+GROUP BY res.beat, res.race);
+
+SELECT rpb1.beat, rpb1.race, rpb1.officer_count / sum(rpb2.officer_count) ratio
+FROM race_per_beat rpb1, race_per_beat rpb2
+WHERE rpb1.beat = rpb2.beat
+GROUP BY rpb1.beat, rpb1.race, rpb1.officer_count
+ORDER BY ratio DESC;
 
 
 -- 2019 race and gender across the entire CPD
@@ -163,8 +175,6 @@ FROM (SELECT * FROM data_officer WHERE EXTRACT(year FROM appointed_date) <= 2019
 WHERE doh.officer_id = dof.id AND doh.unit_id = dpu.id AND dpu.description IS NOT NULL AND dpu.description != 'Unknown'
 GROUP BY dpu.description;
 
-                                                
-
 ----------------------------------
 -- QUESTION 3                   --
 ----------------------------------
@@ -172,11 +182,20 @@ GROUP BY dpu.description;
 -- *** What is the race composition of every beat active in 2019?
 -- Takes some time to resolve!
 
+CREATE TEMP TABLE beat_district_map AS (
+SELECT beats.name beat_name, districts.name district_name
+FROM data_area districts JOIN data_area beats ON st_intersects(districts.polygon, beats.polygon)
+WHERE districts.area_type = 'police-district' AND beats.area_type = 'beat')
+
+CREATE TEMP TABLE race_per_beat AS (
 SELECT res.beat, res.race, count(distinct res.officer_id) FROM
 (SELECT * FROM data_assignment_attendance
 WHERE EXTRACT(year FROM shift_start) = 2019 AND beat SIMILAR TO '[0-9]%') as res
 WHERE res.officer_id is not null AND res.beat is not null
-GROUP BY res.beat, res.race
+GROUP BY res.beat, res.race)
+
+SELECT 
+FROM
 
 ----------------------------------
 -- QUESTION 4                   --
