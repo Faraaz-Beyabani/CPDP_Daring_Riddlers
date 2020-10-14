@@ -179,7 +179,7 @@ GROUP BY dpu.description;
 -- QUESTION 3                   --
 ----------------------------------
 
--- *** What is the race composition of every beat active in 2019?
+-- *** What does the distribution of officer race look like for every district?
 -- Please run these queries in sequence, as the temporary tables are necessary
 
 CREATE TEMP TABLE race_per_beat AS (
