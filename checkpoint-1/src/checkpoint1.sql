@@ -180,22 +180,31 @@ GROUP BY dpu.description;
 ----------------------------------
 
 -- *** What is the race composition of every beat active in 2019?
--- Takes some time to resolve!
-
-CREATE TEMP TABLE beat_district_map AS (
-SELECT beats.name beat_name, districts.name district_name
-FROM data_area districts JOIN data_area beats ON st_intersects(districts.polygon, beats.polygon)
-WHERE districts.area_type = 'police-district' AND beats.area_type = 'beat')
+-- Please run these queries in sequence, as the temporary tables are necessary
 
 CREATE TEMP TABLE race_per_beat AS (
-SELECT res.beat, res.race, count(distinct res.officer_id) FROM
-(SELECT * FROM data_assignment_attendance
-WHERE EXTRACT(year FROM shift_start) = 2019 AND beat SIMILAR TO '[0-9]%') as res
-WHERE res.officer_id is not null AND res.beat is not null
-GROUP BY res.beat, res.race)
+SELECT DISTINCT doaa.officer_id, doaa.race, doaa.beat
+FROM (SELECT * FROM data_officerassignmentattendance
+    WHERE extract(year from shift_start) = 2019 AND officer_id is not null AND beat is not null) doaa,
+                                                      data_area da
+where doaa.beat = da.name);
 
-SELECT 
-FROM
+CREATE TEMP TABLE beat_district_map AS (
+SELECT districts.name district_name, beats.name beat_name
+FROM data_area districts JOIN data_area beats ON st_intersects(districts.polygon, beats.polygon)
+WHERE districts.area_type = 'police-districts' AND beats.area_type = 'beat');
+
+CREATE TEMP TABLE officers_per_district AS (
+SELECT district.district_name, count(district.district_name)
+FROM race_per_beat race, beat_district_map district
+WHERE district.beat_name = race.beat
+GROUP BY district.district_name
+);
+
+SELECT district.district_name, race.race, ROUND(CAST(count(race.race) AS numeric) / officer_count.count, 2)
+FROM race_per_beat race, beat_district_map district, officers_per_district officer_count
+WHERE district.beat_name = race.beat AND officer_count.district_name = district.district_name
+group by district.district_name, race.race, officer_count.count;
 
 ----------------------------------
 -- QUESTION 4                   --
@@ -214,8 +223,6 @@ GROUP BY race;
 SELECT race, round(cast(avg(count) as numeric), 2)
 FROM data_racepopulation drp
 GROUP BY race;
-
-
 
 -- *** Which areas are predominantly White, Black, Asian, Hispanic (compared to the city average)? ***
 
