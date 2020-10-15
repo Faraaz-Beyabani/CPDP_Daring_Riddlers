@@ -169,7 +169,7 @@ GROUP BY dpu.description;
 ```
 
 
-### 3. What does the distribution of race look like for every active beat (at least one assignment in a given year)?
+### 3. What does the distribution of officer race look like for every district?
 ```
 SELECT res.beat, res.race, count(distinct res.officer_id) FROM
 (SELECT * FROM data_assignment_attendance
