@@ -20,13 +20,13 @@ CREATE TEMP TABLE district_yearly_trrs AS (
 SELECT name, district_trrs.year, ROUND(sum(count)/trr_total,4)*100 as trr_count
 FROM (SELECT district.name, EXTRACT(year from trrs.trr_datetime) as year, count(trrs.*) as count
      FROM district_areas district, trr_trr trrs
-     WHERE st_intersects(district.polygon, trrs.point)
+     WHERE ST_Intersects(district.polygon, trrs.point)
      GROUP BY district.name, trrs.trr_datetime) as district_trrs, trrs_per_year
 WHERE district_trrs.year = trrs_per_year.year
 GROUP BY name, district_trrs.year, trrs_per_year.trr_total);
 
 -- These are the number of TRRs filed per district per year.
-SELECT dyt.*, dra.polygon FROM district_yearly_trrs dyt
+SELECT dyt.*, ST_AsGeoJSON(dra.polygon) as polygon FROM district_yearly_trrs dyt
 INNER JOIN district_areas dra ON dyt.name = dra.name;
 
 -- This is the total number of TRRs filed per year.
