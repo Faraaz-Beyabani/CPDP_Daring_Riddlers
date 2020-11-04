@@ -1,6 +1,6 @@
 # Checkpoint 3
 
-In this checkpoint, we used D3.js, a JavaScript visualization library, to visualize the number of TRRs filed per district for each year from 2004 to 2016. Our results can be found in the ObservableHQ notebook located at [this link](https://observablehq.com/@afv22/cpd-complaints-by-district) or by opening the browser shorcut at `src/visualization.html`.
+In this checkpoint, we used D3.js, a JavaScript visualization library, to visualize the number of TRRs filed per district for each year from 2004 to 2016. Our results can be found in the ObservableHQ notebook located at [this link](https://observablehq.com/@afv22/cpd-complaints-by-district) or by opening the browser shorcut in the `src/` folder.
 
 Additionally, intermediate steps and data files can be found in the `src/misc/` folder. This includes files such as JSON, GeoJSON, and SQL queries that were used to construct the final visualization.
 
