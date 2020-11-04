@@ -25,10 +25,8 @@ FROM (SELECT district.name, EXTRACT(year from trrs.trr_datetime) as year, count(
 WHERE district_trrs.year = trrs_per_year.year
 GROUP BY name, district_trrs.year, trrs_per_year.trr_total);
 
--- These are the number of TRRs filed per district per year.
+-- These are the percent of TRRs filed per district per year.
 SELECT dyt.*, ST_AsGeoJSON(dra.polygon) as polygon FROM district_yearly_trrs dyt
 INNER JOIN district_areas dra ON dyt.name = dra.name;
 
--- This is the total number of TRRs filed per year.
--- Our totals above are lower due to some TRRs not being within the district bounds given.
-SELECT * FROM trrs_per_year;
+-- Our totals above are lower than the total number of TRRs per year due to some TRRs being located outside the district bounds given.
