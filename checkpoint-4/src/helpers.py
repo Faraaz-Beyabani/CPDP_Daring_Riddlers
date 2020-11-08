@@ -22,10 +22,10 @@ def prepare_officer_json():
     data = csv.reader(open('data/officers_per_district.csv'))
     headers = next(data)
 
-    officer_dict = {}
+    officer_dict = defaultdict(dict)
 
-    for name, count in data:
-        officer_dict[name] = int(count)
+    for name, year, count in data:
+        officer_dict[name][year] = int(count)
 
     with open('data/officers.json', mode='w+') as fp:
         json.dump(officer_dict, fp)
@@ -75,11 +75,12 @@ def format_data(complaints, police, population):
     years = list(complaints.keys())
     years = [int(x) for x in years]
 
-    X = np.asarray(years) 
-    X = np.reshape(X, (*X.shape, 1))
+    years = np.asarray(years) 
+    years = np.reshape(years, (*years.shape, 1))
 
-    cops = np.full(X.shape, police)
+    cops = np.asarray(list(police.values()))
+    cops = np.reshape(cops, (*cops.shape, 1))
 
-    X = np.append(X, cops, axis=1)
+    X = np.append(years, cops, axis=1)
     
     return X, y
