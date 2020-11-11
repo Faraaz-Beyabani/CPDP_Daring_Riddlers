@@ -4,7 +4,22 @@ from collections import defaultdict, Counter
 
 import numpy as np
 
-def prepare_complaint_json():
+def make_ordinal(n):
+    '''
+    Convert an integer into its ordinal representation::
+
+        make_ordinal(0)   => '0th'
+        make_ordinal(3)   => '3rd'
+        make_ordinal(122) => '122nd'
+        make_ordinal(213) => '213th'
+    '''
+    n = int(n)
+    suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    return str(n) + suffix
+
+def prepare_complaints():
     data = csv.reader(open('data/severe_allegations_per_district_per_year.csv'))
     headers = next(data)
 
@@ -13,12 +28,9 @@ def prepare_complaint_json():
     for name, year, count in data:
         complaint_dict[name][year] = int(count)
 
-    with open('data/complaints.json', mode='w+') as fp:
-        json.dump(complaint_dict, fp)
-
     return complaint_dict
 
-def prepare_officer_json():
+def prepare_officers():
     data = csv.reader(open('data/officers_per_district.csv'))
     headers = next(data)
 
@@ -27,12 +39,9 @@ def prepare_officer_json():
     for name, year, count in data:
         officer_dict[name][year] = int(count)
 
-    with open('data/officers.json', mode='w+') as fp:
-        json.dump(officer_dict, fp)
-
     return officer_dict
 
-def prepare_population_json():
+def prepare_population():
     data = csv.reader(open('data/population_per_district.csv'))
     headers = next(data)
 
@@ -41,18 +50,26 @@ def prepare_population_json():
     for name, count in data:
         population_dict[name] = int(count)
 
-    with open('data/population.json', mode='w+') as fp:
-        json.dump(population_dict, fp)
-
     return population_dict
 
-def district_buckets():
-    north = ['16th','17th','24th','20th','19th']
-    central = ['14th', '18th', '12th', '1st', '9th', '2nd']
-    west = ['25th', '15th', '11th', '10th', '8th']
-    south = ['7th', '3rd', '6th', '4th', '22nd', '5th']
-
-    return north, central, west, south
+def prepare_ratios():
+    data = csv.reader(open('data/allegation_proportions_per_unit.csv'))
+    headers = next(data)
+    
+    uof_index = 10
+    ills_index = 15
+    
+    uof_ratios = defaultdict(dict)
+    ill_search_ratios = defaultdict(dict)
+    
+    for stat in data:
+        name = make_ordinal(int(stat[0]))
+        year = stat[1]
+        
+        uof_ratios[name][year] = float(stat[uof_index])
+        ill_search_ratios[name][year] = float(stat[ills_index])
+    
+    return uof_ratios, ill_search_ratios
 
 def merge_dicts(key_list, dict_dict):
     result = Counter(dict_dict[key_list[0]])
@@ -61,6 +78,17 @@ def merge_dicts(key_list, dict_dict):
         
     return result
 
+def avg_dicts(key_list, dict_dict):
+    total_num = len(key_list)
+    result = merge_dicts(key_list, dict_dict)
+        
+    keys = list(result.keys())
+    vals = list(result.values())
+    
+    avg_result = {keys[i]:round(vals[i]/total_num, 4) for i in range(len(keys))}
+        
+    return avg_result
+
 def merge_values(key_list, int_dict):
     result = 0
     for key in key_list:
@@ -68,7 +96,14 @@ def merge_values(key_list, int_dict):
     
     return result
 
-def format_data(complaints, police, population):
+def format_data(complaints, population, *args):
+    '''
+    Builds a feature vector suitable for linear regression.
+    
+    complaints: A dictionary where the key is the year and the value is the number of complaints
+    population: An integer corresponding to the population of a region
+    *args     : Features in the form of dictionaries, key being year and value being the numeric feature
+    '''
     y = np.asarray(list(complaints.values()))
     y = y / population
 
@@ -76,11 +111,12 @@ def format_data(complaints, police, population):
     years = [int(x) for x in years]
 
     years = np.asarray(years) 
-    years = np.reshape(years, (*years.shape, 1))
+    X = np.reshape(years, (*years.shape, 1))
+    
+    for feature in args:
+        format_feat = np.asarray(list(feature.values()))
+        format_feat = np.reshape(format_feat, (*format_feat.shape, 1))
 
-    cops = np.asarray(list(police.values()))
-    cops = np.reshape(cops, (*cops.shape, 1))
-
-    X = np.append(years, cops, axis=1)
+        X = np.append(X, format_feat, axis=1)
     
     return X, y
