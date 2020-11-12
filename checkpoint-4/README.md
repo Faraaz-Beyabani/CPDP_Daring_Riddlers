@@ -5,6 +5,9 @@ In this checkpoint, we used the Python machine learning module, scikit-learn, in
 The csv data files used for this assignment can be found in the `src/data/` folder. The `src/python/` folder contains the SQL queries used to populate these files in `queries.sql` and the helper functions used in the Jupyter notebook in `helpers.py`.
 
 ## Prerequisites
+
+If you would like to run the code cells, the following packages are required. Otherwise, to view the notebook, only Jupyter Notebook and/or Jupyter Lab is needed.
+
 * Jupyter Notebook or Lab
 * NumPy 1.19.4
 * MatPlotLib 3.3.2
