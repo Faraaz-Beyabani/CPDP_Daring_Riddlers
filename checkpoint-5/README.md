@@ -16,7 +16,7 @@ If you would like to run the code cells, the following packages are required. Ot
 * NLTK
 
 ## Focus Questions
-* How is the sentiment of an allegation summary affected by the complainants race or gender?
+* How is the sentiment of an allegation summary affected by the complainant's race or gender?
 * Is there a correlation between the negativity of a sentiment and various geographic and complainant features?
 
 Our results from completing this analysis can be found in the `findings.pdf` in the root directory.
